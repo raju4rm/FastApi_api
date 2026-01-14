@@ -1,13 +1,15 @@
 from fastapi import APIRouter, FastAPI, Depends, HTTPException, status
 router = APIRouter()
 
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate, SignInRequest
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.user import User
-from app.utils.security import hash_password
+from app.utils.security import hash_password, verify_password
 from app.utils.response import send_success_response, send_error_response, send_records_response
 from fastapi.encoders import jsonable_encoder
+from datetime import timedelta
+from app.utils.jwt import create_access_token
 
 @router.post("/sign-up")
 def signup(user: UserCreate, db: Session = Depends(get_db)):
@@ -44,27 +46,46 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
             errors=str(e),
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-    
 
+@router.post("/sign-in")
+def signin(user : SignInRequest, db: Session = Depends(get_db)):
     try:
-        users = db.query(User.email,User.name).all()
-        data = []
-        for user in users:
-            data.append({
-                "email": user.email,
-                "name": user.name
-            })
+        check = db.query(User).filter(User.email == user.email).first()
 
-            
-        return send_records_response(
-            message="User list fetched successfully.",
-            data= jsonable_encoder(data),
-            total_count=len(data),
-            status_code=status.HTTP_200_OK
-        )
+        if check and verify_password(user.password, check.password):
+            access_token = create_access_token(
+                data={
+                    "user_id": str(check.user_id),
+                    "email": check.email
+                },
+                expires_delta=timedelta(minutes=60)
+            )
+
+            data = {
+                "user_id": check.user_id,
+                "email": check.email,
+                "name": check.name,
+                "access_token": access_token
+            }
+
+            return send_records_response(
+                message ="Sign-in successful1.", 
+                data = data,
+                total_count = 1,
+                status_code = status.HTTP_200_OK
+            )
+        else:
+            return send_error_response(
+                message = "Invalid email or password.",
+                errors = {"email": "Invalid email or password."},
+                status_code =status.HTTP_401_UNAUTHORIZED
+            )
     except Exception as e:
         return send_error_response(
-            message="Internal server error",
-            errors=str(e),
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            message = "Internal server error",
+            errors = str(e),
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+            
+
+   

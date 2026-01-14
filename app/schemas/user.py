@@ -12,3 +12,7 @@ class UserCreate(BaseModel):
 class UserResponse(BaseModel):
     user_id: int
     email: str
+
+class SignInRequest(BaseModel):
+    email: EmailStr
+    password: str
