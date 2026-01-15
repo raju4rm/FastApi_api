@@ -65,12 +65,12 @@ def signin(user : SignInRequest, db: Session = Depends(get_db)):
                 "user_id": check.user_id,
                 "email": check.email,
                 "name": check.name,
-                "access_token": access_token
+                "token": access_token
             }
 
             return send_records_response(
-                message ="Sign-in successful1.", 
-                data = data,
+                message ="Sign-in successful.", 
+                data = [data],
                 total_count = 1,
                 status_code = status.HTTP_200_OK
             )
