@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, Enum, DateTime
 from app.db.database  import Base
-from app.models.enums import StatusEnum
 from sqlalchemy.sql import func
 
 
@@ -18,7 +17,7 @@ class User(Base):
     email_otp = Column(Integer, nullable=True)
     phone_otp = Column(Integer, nullable=True)
     forget_password_token = Column(String(255), nullable=True)
-    is_active = Column(Enum(StatusEnum), default=StatusEnum.ACTIVE, nullable=False)
+    is_active = Column(String(255), nullable=True)
     created_by = Column(Integer, nullable=True)
     created_at = Column(
         DateTime(timezone=True),

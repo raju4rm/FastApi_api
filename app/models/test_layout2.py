@@ -3,12 +3,12 @@ from app.db.database  import Base
 from sqlalchemy.sql import func
 
 
-class Role(Base):
-    __tablename__ = "role"
+class TestLayout2(Base):
+    __tablename__ = "test_layout2"
 
-    role_id = Column(Integer, primary_key=True, index=True)
-    role_name = Column(String(255), nullable=False)
-    slug = Column(String(255), unique=True, nullable=False)
+    test_layout2_id = Column(Integer, primary_key=True, index=True)
+    input_box = Column(String(255), nullable=False)
+    select_box = Column(String(255), nullable=False)
     is_active = Column(String(255), nullable=True)
     created_by = Column(Integer, nullable=True)
     created_at = Column(
